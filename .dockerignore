@@ -1,0 +1,46 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Tests
+tests/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Documentation
+docs/
+*.md
+
+# Development files
+.env.local
+.env.development
+*.log
+
+# SQLite database (will be created inside container)
+*.db
+instance/
+
+# Backup files
+backup/
+
+# OS files
+.DS_Store
+Thumbs.db
