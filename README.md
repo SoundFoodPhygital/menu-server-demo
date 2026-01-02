@@ -1,8 +1,8 @@
 # SoundFood Menu API
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Tests](https://github.com/SoundFoodIT/menu-server-demo/actions/workflows/test.yml/badge.svg)](https://github.com/SoundFoodIT/menu-server-demo/actions/workflows/test.yml)
-[![Lint](https://github.com/SoundFoodIT/menu-server-demo/actions/workflows/lint.yml/badge.svg)](https://github.com/SoundFoodIT/menu-server-demo/actions/workflows/lint.yml)
+[![Tests](https://github.com/SoundFoodPhygital/menu-api/actions/workflows/test.yml/badge.svg)](https://github.com/SoundFoodPhygital/menu-api/actions/workflows/test.yml)
+[![Lint](https://github.com/SoundFoodPhygital/menu-api/actions/workflows/lint.yml/badge.svg)](https://github.com/SoundFoodPhygital/menu-api/actions/workflows/lint.yml)
 
 A Flask RESTful API for managing restaurant menus. This service allows users to create, manage, and organize their restaurant menus with detailed dish attributes including taste profiles, textures, emotions, and visual characteristics.
 
