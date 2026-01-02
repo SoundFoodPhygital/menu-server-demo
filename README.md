@@ -87,10 +87,34 @@ Set environment variables to configure the application:
 
 ## API Reference
 
-All API endpoints (except authentication) require a valid JWT token in the `Authorization` header:
+All API endpoints (except authentication and health check) require a valid JWT token in the `Authorization` header:
 
 ```
 Authorization: Bearer <your_token>
+```
+
+### Health Check
+
+#### Check API and database status
+
+```http
+GET /api/health
+```
+
+**Response (200 - Healthy):**
+```json
+{
+  "status": "healthy",
+  "database": "connected"
+}
+```
+
+**Response (503 - Unhealthy):**
+```json
+{
+  "status": "unhealthy",
+  "database": "disconnected"
+}
 ```
 
 ### Authentication

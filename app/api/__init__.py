@@ -10,6 +10,22 @@ api_bp = Blueprint("api", __name__, url_prefix="/api")
 
 
 # =============================================================================
+# Health Check
+# =============================================================================
+
+
+@api_bp.route("/health", methods=["GET"])
+@limiter.limit("120 per minute")
+def health_check():
+    """Health check endpoint to verify API and database availability."""
+    try:
+        db.session.execute(db.text("SELECT 1"))
+        return jsonify({"status": "healthy", "database": "connected"}), 200
+    except Exception:
+        return jsonify({"status": "unhealthy", "database": "disconnected"}), 503
+
+
+# =============================================================================
 # Menu Routes
 # =============================================================================
 
