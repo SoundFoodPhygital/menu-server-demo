@@ -1,0 +1,187 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+<style>
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  .stat-card h3 {
+    margin: 0;
+    font-size: 2rem;
+  }
+  .stat-card p {
+    margin: 0.5rem 0 0;
+    opacity: 0.9;
+  }
+  .dashboard-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .dashboard-section h4 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 0.5rem;
+  }
+  .activity-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  .activity-table th, .activity-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  .activity-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+  }
+  .method-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+  }
+  .method-GET { background: #d4edda; color: #155724; }
+  .method-POST { background: #cce5ff; color: #004085; }
+  .method-DELETE { background: #f8d7da; color: #721c24; }
+  .method-PUT { background: #fff3cd; color: #856404; }
+  .status-2xx { color: #28a745; }
+  .status-4xx { color: #ffc107; }
+  .status-5xx { color: #dc3545; }
+  .logout-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+</style>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <h3>{{ stats.users }}</h3>
+    <p>👤 Users</p>
+  </div>
+  <div class="stat-card">
+    <h3>{{ stats.menus }}</h3>
+    <p>📋 Menus</p>
+  </div>
+  <div class="stat-card">
+    <h3>{{ stats.dishes }}</h3>
+    <p>🍽️ Dishes</p>
+  </div>
+  <div class="stat-card">
+    <h3>{{ stats.emotions }}</h3>
+    <p>😊 Emotions</p>
+  </div>
+  <div class="stat-card">
+    <h3>{{ stats.textures }}</h3>
+    <p>🧱 Textures</p>
+  </div>
+  <div class="stat-card">
+    <h3>{{ stats.shapes }}</h3>
+    <p>🔷 Shapes</p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="dashboard-section">
+      <h4>📈 API Usage (Last 7 Days)</h4>
+      <canvas id="usageChart" height="100"></canvas>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="dashboard-section">
+      <h4>ℹ️ Quick Info</h4>
+      <p><strong>Logged in as:</strong> {{ current_user.username }}</p>
+      <p><strong>Role:</strong>
+        {% if current_user.is_admin %}Admin{% elif current_user.is_manager %}Manager{% else %}User{% endif %}
+      </p>
+      <p><strong>Server time:</strong> <span id="server-time"></span></p>
+    </div>
+  </div>
+</div>
+
+<div class="dashboard-section">
+  <h4>📝 Recent API Activity</h4>
+  {% if recent_logs %}
+  <table class="activity-table">
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Method</th>
+        <th>Endpoint</th>
+        <th>User ID</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in recent_logs %}
+      <tr>
+        <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        <td><span class="method-badge method-{{ log.method }}">{{ log.method }}</span></td>
+        <td><code>{{ log.endpoint }}</code></td>
+        <td>{{ log.user_id or '-' }}</td>
+        <td class="{% if log.status_code < 300 %}status-2xx{% elif log.status_code < 500 %}status-4xx{% else %}status-5xx{% endif %}">
+          {{ log.status_code }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="text-muted">No API activity yet.</p>
+  {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // API Usage Chart
+  const ctx = document.getElementById('usageChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: {{ chart_labels | tojson }},
+      datasets: [{
+        label: 'API Requests',
+        data: {{ chart_values | tojson }},
+        borderColor: '#667eea',
+        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+        fill: true,
+        tension: 0.3,
+        pointBackgroundColor: '#667eea',
+        pointRadius: 5,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1 }
+        }
+      }
+    }
+  });
+
+  // Server time
+  document.getElementById('server-time').textContent = new Date().toLocaleString();
+</script>
+{% endblock %}
