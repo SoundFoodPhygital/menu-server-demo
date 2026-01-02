@@ -22,6 +22,7 @@ class User(db.Model, UserMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    email: Mapped[str | None] = mapped_column(String, unique=True, nullable=True)
     password_hash: Mapped[str] = mapped_column(String, nullable=False)
     is_admin: Mapped[bool] = mapped_column(Integer, nullable=False, default=0)
     is_manager: Mapped[bool] = mapped_column(Integer, nullable=False, default=0)
@@ -51,10 +52,12 @@ class User(db.Model, UserMixin):
         password: str,
         is_admin: bool = False,
         is_manager: bool = False,
+        email: str | None = None,
     ) -> User:
         """Factory method to create and persist a new user."""
         user = cls(
             username=username,
+            email=email,
             is_admin=is_admin,
             is_manager=is_manager,
         )

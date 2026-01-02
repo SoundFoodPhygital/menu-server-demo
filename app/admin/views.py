@@ -1,14 +1,14 @@
 """Admin module - Flask-Admin configuration and views."""
 
-from flask import redirect, request, url_for
-from flask_admin import Admin, AdminIndexView, expose
+from flask import flash, redirect, request, url_for
+from flask_admin import Admin, AdminIndexView, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.form import SecureForm
 from flask_admin.menu import MenuLink
 from flask_login import current_user
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional
 
 from ..extensions import cache, db
 from ..models import Dish, Emotion, Menu, RequestLog, Shape, Texture, User
@@ -20,6 +20,33 @@ class AdminLoginForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Login")
+
+
+class ProfileForm(FlaskForm):
+    """Form for user profile settings."""
+
+    email = StringField(
+        "Email",
+        validators=[Optional(), Email(message="Inserisci un indirizzo email valido")],
+    )
+    current_password = PasswordField(
+        "Password Attuale",
+        validators=[DataRequired(message="La password attuale è richiesta")],
+    )
+    new_password = PasswordField(
+        "Nuova Password",
+        validators=[
+            Optional(),
+            Length(min=8, message="La password deve avere almeno 8 caratteri"),
+        ],
+    )
+    confirm_password = PasswordField(
+        "Conferma Nuova Password",
+        validators=[
+            EqualTo("new_password", message="Le password non corrispondono"),
+        ],
+    )
+    submit = SubmitField("Salva Modifiche")
 
 
 class SecureModelView(ModelView):
@@ -55,8 +82,8 @@ class ManagerModelView(ModelView):
 class UserAdminView(SecureModelView):
     """Admin view for User model."""
 
-    column_list = ["id", "username", "is_admin", "is_manager"]
-    column_searchable_list = ["username"]
+    column_list = ["id", "username", "email", "is_admin", "is_manager"]
+    column_searchable_list = ["username", "email"]
     column_filters = ["is_admin", "is_manager"]
     form_excluded_columns = ["password_hash", "menus"]
 
@@ -74,6 +101,57 @@ class RequestLogAdminView(ManagerModelView):
     column_list = ["id", "timestamp", "method", "endpoint", "status_code", "user_id"]
     column_filters = ["method", "status_code", "timestamp"]
     column_default_sort = ("timestamp", True)
+
+
+class ProfileView(BaseView):
+    """View for user profile settings."""
+
+    def is_accessible(self):
+        """Check if user can access profile."""
+        return current_user.is_authenticated and (
+            current_user.is_admin or current_user.is_manager
+        )
+
+    def inaccessible_callback(self, name, **kwargs):
+        """Redirect to login when access is denied."""
+        return redirect(url_for("admin_auth.login", next=request.url))
+
+    @expose("/", methods=["GET", "POST"])
+    def index(self):
+        """User profile page for changing email and password."""
+        form = ProfileForm()
+
+        if form.validate_on_submit():
+            # Verify current password
+            if not current_user.check_password(form.current_password.data):
+                flash("Password attuale non corretta.", "error")
+                return self.render("admin/profile.html", form=form)
+
+            # Update email if provided
+            if form.email.data:
+                # Check if email is already used by another user
+                existing_user = User.query.filter(
+                    User.email == form.email.data,
+                    User.id != current_user.id,
+                ).first()
+                if existing_user:
+                    flash("Questa email è già in uso da un altro utente.", "error")
+                    return self.render("admin/profile.html", form=form)
+                current_user.email = form.email.data
+
+            # Update password if provided
+            if form.new_password.data:
+                current_user.set_password(form.new_password.data)
+
+            db.session.commit()
+            flash("Profilo aggiornato con successo!", "success")
+            return redirect(url_for("profile.index"))
+
+        # Pre-fill email field
+        if request.method == "GET" and current_user.email:
+            form.email.data = current_user.email
+
+        return self.render("admin/profile.html", form=form)
 
 
 class MyAdminIndexView(AdminIndexView):
@@ -163,6 +241,7 @@ def init_admin(app):
         )
     )
     admin.add_view(RequestLogAdminView(RequestLog, db.session, name="Request Logs"))
+    admin.add_view(ProfileView(name="Profile", endpoint="profile"))
     admin.add_link(MenuLink(name="Logout", url="/admin/logout"))
 
     return admin
