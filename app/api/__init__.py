@@ -3,7 +3,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
-from ..extensions import db, limiter
+from ..extensions import cache, db, limiter
 from ..models import Dish, Emotion, Menu, Shape, Texture
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
@@ -284,6 +284,7 @@ def delete_dish(dish_id: int):
 @api_bp.route("/emotions", methods=["GET"])
 @jwt_required()
 @limiter.limit("60 per minute")
+@cache.cached(timeout=604800, key_prefix="emotions_list")  # Cache for 7 days
 def get_emotions():
     """Get all available emotions."""
     emotions = Emotion.query.all()
@@ -293,6 +294,7 @@ def get_emotions():
 @api_bp.route("/textures", methods=["GET"])
 @jwt_required()
 @limiter.limit("60 per minute")
+@cache.cached(timeout=604800, key_prefix="textures_list")  # Cache for 7 days
 def get_textures():
     """Get all available textures."""
     textures = Texture.query.all()
@@ -302,6 +304,7 @@ def get_textures():
 @api_bp.route("/shapes", methods=["GET"])
 @jwt_required()
 @limiter.limit("60 per minute")
+@cache.cached(timeout=604800, key_prefix="shapes_list")  # Cache for 7 days
 def get_shapes():
     """Get all available shapes."""
     shapes = Shape.query.all()

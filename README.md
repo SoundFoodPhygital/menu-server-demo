@@ -85,6 +85,24 @@ Set environment variables to configure the application:
 | `DATABASE_URL` | Database connection string | `sqlite:///project.db` |
 | `FLASK_ENV` | Environment (`development`/`production`) | `development` |
 
+### Caching
+
+The API uses Flask-Caching to improve performance. By default, it uses in-memory caching (`SimpleCache`).
+
+| Endpoint | Cache Duration | Description |
+|----------|----------------|-------------|
+| `GET /api/emotions` | 7 days | Emotion attributes (static data) |
+| `GET /api/textures` | 7 days | Texture attributes (static data) |
+| `GET /api/shapes` | 7 days | Shape attributes (static data) |
+
+For production with multiple workers, consider using Redis:
+
+```python
+# In your configuration
+CACHE_TYPE = "RedisCache"
+CACHE_REDIS_URL = "redis://localhost:6379/0"
+```
+
 ## API Reference
 
 All API endpoints (except authentication and health check) require a valid JWT token in the `Authorization` header:

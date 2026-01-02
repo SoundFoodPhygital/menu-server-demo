@@ -3,6 +3,7 @@
 import os
 
 from flask_babel import Babel
+from flask_caching import Cache
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_limiter import Limiter
@@ -34,3 +35,6 @@ limiter = Limiter(
     key_func=get_remote_address,
     storage_uri=os.environ.get("RATELIMIT_STORAGE_URI", "memory://"),
 )
+
+# Cache
+cache = Cache()

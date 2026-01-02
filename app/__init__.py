@@ -3,7 +3,7 @@
 from flask import Flask
 
 from .config import Config
-from .extensions import babel, cors, db, jwt, limiter, login_manager, migrate
+from .extensions import babel, cache, cors, db, jwt, limiter, login_manager, migrate
 
 
 def create_app(config_class=Config):
@@ -41,6 +41,7 @@ def _init_extensions(app: Flask):
     babel.init_app(app)
     cors.init_app(app)
     limiter.init_app(app)
+    cache.init_app(app)
 
 
 def _register_blueprints(app: Flask):

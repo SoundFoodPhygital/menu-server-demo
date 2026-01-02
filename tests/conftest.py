@@ -5,7 +5,7 @@ from flask_jwt_extended import create_access_token
 
 from app import create_app
 from app.config import TestingConfig
-from app.extensions import db
+from app.extensions import cache, db
 from app.models import Dish, Emotion, Menu, Shape, Texture, User
 
 
@@ -16,7 +16,9 @@ def app():
 
     with app.app_context():
         db.create_all()
+        cache.clear()  # Clear cache before each test
         yield app
+        cache.clear()  # Clear cache after each test
         db.session.remove()
         db.drop_all()
 

@@ -10,7 +10,7 @@ from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField, SubmitField
 from wtforms.validators import DataRequired
 
-from ..extensions import db
+from ..extensions import cache, db
 from ..models import Dish, Emotion, Menu, RequestLog, Shape, Texture, User
 
 
@@ -92,30 +92,41 @@ class MyAdminIndexView(AdminIndexView):
     @expose("/")
     def index(self):
         # Dashboard statistics
-        stats = {
-            "users": User.query.count(),
-            "menus": Menu.query.count(),
-            "dishes": Dish.query.count(),
-            "emotions": Emotion.query.count(),
-            "textures": Texture.query.count(),
-            "shapes": Shape.query.count(),
-            "requests": RequestLog.query.count(),
-        }
+        stats = cache.get("admin_dashboard_stats")
+        if stats is None:
+            stats = {
+                "users": User.query.count(),
+                "menus": Menu.query.count(),
+                "dishes": Dish.query.count(),
+                "emotions": Emotion.query.count(),
+                "textures": Texture.query.count(),
+                "shapes": Shape.query.count(),
+                "requests": RequestLog.query.count(),
+            }
+            cache.set("admin_dashboard_stats", stats, timeout=600)
+
+        # Chart data
+        chart_data = cache.get("admin_chart_data")
+        if chart_data is None:
+            daily_counts = RequestLog.get_daily_counts(30)
+            chart_data = {
+                "labels": [row[0] for row in daily_counts],
+                "values": [row[1] for row in daily_counts],
+            }
+            cache.set("admin_chart_data", chart_data, timeout=600)
 
         # Recent activity
-        recent_logs = RequestLog.get_recent(10)
-
-        # Daily request counts for chart
-        daily_counts = RequestLog.get_daily_counts(30)
-        chart_labels = [str(d[0]) for d in reversed(daily_counts)]
-        chart_values = [d[1] for d in reversed(daily_counts)]
+        recent_logs = cache.get("admin_recent_logs")
+        if recent_logs is None:
+            recent_logs = RequestLog.get_recent(10)
+            cache.set("admin_recent_logs", recent_logs, timeout=60)
 
         return self.render(
             "admin/custom_index.html",
             stats=stats,
             recent_logs=recent_logs,
-            chart_labels=chart_labels,
-            chart_values=chart_values,
+            chart_labels=chart_data["labels"],
+            chart_values=chart_data["values"],
         )
 
 

@@ -17,6 +17,10 @@ class Config:
     WTF_CSRF_ENABLED = True
     FLASK_ADMIN_SWATCH = "cerulean"
 
+    # Cache configuration
+    CACHE_TYPE = "SimpleCache"
+    CACHE_DEFAULT_TIMEOUT = 300
+
 
 class DevelopmentConfig(Config):
     """Development configuration."""
@@ -36,6 +40,8 @@ class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     WTF_CSRF_ENABLED = False
+    CACHE_TYPE = "SimpleCache"
+    CACHE_DEFAULT_TIMEOUT = 0  # Disable caching by default in tests
 
 
 config = {
