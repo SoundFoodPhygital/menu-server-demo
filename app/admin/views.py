@@ -181,17 +181,18 @@ class MyAdminIndexView(AdminIndexView):
                 "shapes": Shape.query.count(),
                 "requests": RequestLog.query.count(),
             }
-            cache.set("admin_dashboard_stats", stats, timeout=600)
+            cache.set("admin_dashboard_stats", stats, timeout=300)
 
         # Chart data
         chart_data = cache.get("admin_chart_data")
         if chart_data is None:
             daily_counts = RequestLog.get_daily_counts(30)
+            # Reverse to get chronological order (oldest to newest) for the chart
             chart_data = {
-                "labels": [row[0] for row in daily_counts],
-                "values": [row[1] for row in daily_counts],
+                "labels": [row[0] for row in reversed(daily_counts)],
+                "values": [row[1] for row in reversed(daily_counts)],
             }
-            cache.set("admin_chart_data", chart_data, timeout=600)
+            cache.set("admin_chart_data", chart_data, timeout=300)
 
         # Recent activity
         recent_logs = cache.get("admin_recent_logs")

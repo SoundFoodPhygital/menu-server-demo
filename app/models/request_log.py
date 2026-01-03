@@ -3,12 +3,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime  # noqa: TC003
+from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from ..extensions import db
+
+
+def utc_now() -> datetime:
+    """Return current UTC datetime."""
+    return datetime.now(timezone.utc)
 
 
 @dataclass
@@ -18,7 +23,9 @@ class RequestLog(db.Model):
     __tablename__ = "request_log"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    timestamp: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    timestamp: Mapped[datetime] = mapped_column(
+        DateTime, default=utc_now, server_default=func.now()
+    )
     method: Mapped[str] = mapped_column(String(10))
     endpoint: Mapped[str] = mapped_column(String(200))
     status_code: Mapped[int] = mapped_column(Integer)
