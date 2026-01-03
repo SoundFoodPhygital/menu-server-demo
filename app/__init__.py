@@ -92,6 +92,7 @@ def _setup_login_manager():
 def _auto_init_database(app: Flask):
     """Auto-initialize database if needed."""
     import logging
+
     from .db_init import init_database
 
     logger = logging.getLogger(__name__)
