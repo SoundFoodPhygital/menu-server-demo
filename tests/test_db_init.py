@@ -3,9 +3,6 @@
 import os
 from unittest.mock import patch
 
-import pytest
-
-from app import create_app
 from app.config import Config, TestingConfig
 from app.db_init import (
     _create_admin_user,
@@ -82,44 +79,47 @@ class TestDatabaseInitialization:
 
     def test_create_admin_user_from_env(self, app):
         """Test admin user creation from environment variables."""
-        with app.app_context():
-            with patch.dict(
+        with (
+            app.app_context(),
+            patch.dict(
                 os.environ,
                 {
                     "ADMIN_USERNAME": "customadmin",
                     "ADMIN_PASSWORD": "custompass123",
                     "ADMIN_EMAIL": "custom@example.com",
                 },
-            ):
-                _create_admin_user(app)
+            ),
+        ):
+            _create_admin_user(app)
 
-                user = User.get_by_username("customadmin")
-                assert user is not None
-                assert user.email == "custom@example.com"
-                assert user.is_admin is True
-                assert user.is_manager is True
-                assert user.check_password("custompass123")
+            user = User.get_by_username("customadmin")
+            assert user is not None
+            assert user.email == "custom@example.com"
+            assert user.is_admin is True
+            assert user.is_manager is True
+            assert user.check_password("custompass123")
 
     def test_create_admin_user_default_values(self, app):
         """Test admin user creation with default values."""
-        with app.app_context():
-            # Clear environment variables
-            with patch.dict(
+        with (
+            app.app_context(),
+            patch.dict(
                 os.environ,
                 {"ADMIN_USERNAME": "", "ADMIN_PASSWORD": "", "ADMIN_EMAIL": ""},
                 clear=False,
-            ):
-                # Remove the env vars if they exist
-                os.environ.pop("ADMIN_USERNAME", None)
-                os.environ.pop("ADMIN_PASSWORD", None)
-                os.environ.pop("ADMIN_EMAIL", None)
+            ),
+        ):
+            # Remove the env vars if they exist
+            os.environ.pop("ADMIN_USERNAME", None)
+            os.environ.pop("ADMIN_PASSWORD", None)
+            os.environ.pop("ADMIN_EMAIL", None)
 
-                _create_admin_user(app)
+            _create_admin_user(app)
 
-                user = User.get_by_username("admin")
-                assert user is not None
-                assert user.is_admin is True
-                assert user.check_password("admin123")
+            user = User.get_by_username("admin")
+            assert user is not None
+            assert user.is_admin is True
+            assert user.check_password("admin123")
 
     def test_create_admin_user_idempotent(self, app):
         """Test that admin creation doesn't duplicate users."""
