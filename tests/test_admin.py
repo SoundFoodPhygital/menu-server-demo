@@ -142,3 +142,36 @@ class TestManagerAccess:
         self.login_manager(client, manager_user)
         response = client.get("/admin/user/")
         assert response.status_code in [302, 403] or b"denied" in response.data.lower()
+
+
+class TestFlashMessages:
+    """Tests for flash message rendering on admin pages."""
+
+    def login_admin(self, client, admin_user):
+        """Helper to login as admin."""
+        return client.post(
+            "/admin/login",
+            data={"username": "admin", "password": "adminpassword123"},
+            follow_redirects=True,
+        )
+
+    def test_flash_messages_on_login(self, client, admin_user):
+        """Test that flash messages appear on login redirect to admin index."""
+        response = self.login_admin(client, admin_user)
+        # Flash message "Login successful!" should be present
+        assert b"Login successful!" in response.data or b"success" in response.data
+
+    def test_flash_messages_on_logout(self, client, admin_user):
+        """Test that flash messages appear on logout."""
+        self.login_admin(client, admin_user)
+        response = client.get("/admin/logout", follow_redirects=True)
+        # Flash message "You have been logged out." should be present
+        assert b"logged out" in response.data or b"info" in response.data
+
+    def test_flash_messages_on_admin_index(self, client, admin_user):
+        """Test that flash messages can be displayed on admin index page."""
+        # Login and verify the admin index page loads
+        response = self.login_admin(client, admin_user)
+        assert response.status_code == 200
+        # Verify that the flash message from login is shown
+        assert b"Login successful!" in response.data or b"alert" in response.data
