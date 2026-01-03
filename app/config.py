@@ -88,6 +88,7 @@ class TestingConfig(Config):
     WTF_CSRF_ENABLED = False
     CACHE_TYPE = "SimpleCache"
     CACHE_DEFAULT_TIMEOUT = 0  # Disable caching by default in tests
+    AUTO_INIT_DB = False  # Don't auto-initialize database in tests
 
 
 config = {

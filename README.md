@@ -3,6 +3,11 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Tests](https://github.com/SoundFoodPhygital/menu-api/actions/workflows/test.yml/badge.svg)](https://github.com/SoundFoodPhygital/menu-api/actions/workflows/test.yml)
 [![Lint](https://github.com/SoundFoodPhygital/menu-api/actions/workflows/lint.yml/badge.svg)](https://github.com/SoundFoodPhygital/menu-api/actions/workflows/lint.yml)
+[![Poetry](https://img.shields.io/endpoint?url=https://python-poetry.org/badge/v0.json)](https://python-poetry.org/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Flask](https://img.shields.io/badge/flask-3.0+-green.svg)](https://flask.palletsprojects.com/)
+[![Code style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Docker](https://img.shields.io/badge/docker-ready-blue.svg?logo=docker)](https://www.docker.com/)
 
 A Flask RESTful API for managing restaurant menus. This service allows users to create, manage, and organize their restaurant menus with detailed dish attributes including taste profiles, textures, emotions, and visual characteristics.
 
