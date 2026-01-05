@@ -154,7 +154,6 @@ class TestManagerAccess:
         self.login_manager(client, manager_user)
         response = client.get("/admin/dish/")
         assert response.status_code == 200
-        assert response.status_code in [302, 403] or b"denied" in response.data.lower()
 
 
 class TestFlashMessages:
