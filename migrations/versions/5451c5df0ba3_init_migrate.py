@@ -1,7 +1,7 @@
 """init migrate
 
 Revision ID: 5451c5df0ba3
-Revises: 
+Revises:
 Create Date: 2024-06-18 18:20:28.406410
 
 """
