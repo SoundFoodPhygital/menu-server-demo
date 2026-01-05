@@ -87,6 +87,7 @@ class ManagerEditableView(ModelView):
     can_create = True
     can_edit = True
     can_delete = True
+    can_view_details = True
     can_export = True
 
     def is_accessible(self):
@@ -145,6 +146,25 @@ class UserAdminView(ManagerReadOnlyView):
     column_searchable_list = ["username", "email"]
     column_filters = ["is_admin", "is_manager"]
     form_excluded_columns = ["password_hash", "menus", "created_at", "updated_at"]
+
+    form_extra_fields = {
+        "password": PasswordField(
+            "Password",
+            validators=[
+                Optional(),
+                Length(min=8, message="La password deve avere almeno 8 caratteri"),
+            ],
+        )
+    }
+
+    def on_model_change(self, form, model, is_created):
+        """Hash password before saving user."""
+        if form.password.data:
+            model.set_password(form.password.data)
+        elif is_created:
+            # Se stiamo creando un nuovo utente e non è stata fornita una password
+            raise ValueError("La password è obbligatoria per i nuovi utenti")
+        return super().on_model_change(form, model, is_created)
 
 
 class MenuAdminView(ManagerEditableView):
