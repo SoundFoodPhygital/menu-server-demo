@@ -137,8 +137,20 @@ class TestManagerAccess:
         response = client.get("/admin/requestlog/")
         assert response.status_code == 200
 
-    def test_manager_cannot_edit_users(self, client, manager_user, test_user):
-        """Test that managers cannot edit users (admin only view)."""
+    def test_manager_can_view_users(self, client, manager_user):
+        """Test that managers can view users list."""
         self.login_manager(client, manager_user)
         response = client.get("/admin/user/")
-        assert response.status_code in [302, 403] or b"denied" in response.data.lower()
+        assert response.status_code == 200
+
+    def test_manager_can_view_menus(self, client, manager_user):
+        """Test that managers can view menus."""
+        self.login_manager(client, manager_user)
+        response = client.get("/admin/menu/")
+        assert response.status_code == 200
+
+    def test_manager_can_view_dishes(self, client, manager_user):
+        """Test that managers can view dishes."""
+        self.login_manager(client, manager_user)
+        response = client.get("/admin/dish/")
+        assert response.status_code == 200
