@@ -8,6 +8,7 @@
 [![Flask](https://img.shields.io/badge/flask-3.0+-green.svg)](https://flask.palletsprojects.com/)
 [![Code style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Docker](https://img.shields.io/badge/docker-ready-blue.svg?logo=docker)](https://www.docker.com/)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/SoundFoodPhygital/menu-api)
 
 A Flask RESTful API for managing restaurant menus. This service allows users to create, manage, and organize their restaurant menus with detailed dish attributes including taste profiles, textures, emotions, and visual characteristics.
 
